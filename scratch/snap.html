@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Marie Farhat Interactive Viz</title>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+
+        <div id="bar"></div>
+        <div id="container">
+            <div id="map"></div>
+            <div id="events"></div> <!-- this is a WIP -->
+        </div>
+        <div class="tooltip" id="tooltip"></div>
+
+        <script>
+            // sizing and placement
+            const margin = {top: 60, right: 60, bottom: 60, left: 80};
+
+            const event_w = 450;
+            const event_h = 600;
+
+            const container_w = window.innerWidth - event_w - 60;
+
+            const bar_h = 300;
+            const bar_w = window.innerWidth - margin.left - margin.right;
+            const bar_inner_h = bar_h - margin.top - margin.bottom;
+
+            const map_h = 650;
+            const map_left_mg = 20;
+
+            // default selection for first load
+            let default_year = 1989;
+
+/////////// BAR CHART ///////////
+            const bar = d3.select("#bar")
+                .append("svg")
+                .attr("width", window.innerWidth)
+                .attr("height", bar_h)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // Bar title
+            bar.append("text")
+                .attr("x", bar_w / 2)
+                .attr("y", -40)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "18px")
+                .text("Percent of U.S. Residents Participating in SNAP");
+
+            // y-axis label
+            bar.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("x", -bar_inner_h / 2)
+                .attr("y", -50)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "14px")
+                .text("SNAP Participation");
+
+            // Bar data
+            // AI: for wrapping data loading in function-- see citations.md
+            (async function() {
+                const national_data = await d3.csv("../data/clean_data/national.csv", d3.autoType);
+
+                const x = d3.scaleBand()
+                    .domain(national_data.map(d => d.Year))
+                    .range([0, bar_w])
+                    .padding(0.2);
+
+                const y = d3.scaleLinear()
+                    .domain([0, d3.max(national_data, d => d["Pct Participation"])])
+                    .range([bar_inner_h, 0]);
+
+                // X: year axis
+                bar.append("g")
+                    .attr("transform", `translate(0, ${bar_inner_h})`)
+                    .call(d3.axisBottom(x)
+                    .tickFormat(d3.format("d")));
+
+                // Y: SNAP participation axis
+                bar.append("g")
+                    .call(d3.axisLeft(y)
+                    .tickFormat(d => (d * 100).toFixed(0) + "%")); // % units
+
+                const bars = bar.selectAll("rect")
+                    .data(national_data)
+                    .enter()
+                    .append("rect")
+                    .attr("x", d => x(d.Year))
+                    .attr("y", d => y(d["Pct Participation"]))
+                    .attr("width", x.bandwidth())
+                    .attr("height", d => bar_inner_h - y(d["Pct Participation"]))
+                    .attr("fill", d => d.Year === default_year ? "darkgreen" : "lightblue")
+                    .on("mouseover", function(event, d) {
+                        d3.select(this).attr("fill", "darkgreen");
+                        d3.select("#tooltip")
+                            .style("display", "block")
+                            .html(`<strong>${d.Year}</strong><br>
+                                Population: ${(d.Population / 1000000).toFixed(2)}M<br>
+                                Participation: ${(d["Pct Participation"] * 100).toFixed(2)}%<br>
+                                Total Benefits: $${(d["Total Benefits (MUSD)"] / 1000).toFixed(2)}B`) // Adjust for inflation (later)
+                            .style("left", event.pageX + 5 + "px")
+                            .style("top", event.pageY - 28 + "px");
+                    })
+                    // Tooltip function
+                    .on("mouseout", function(event, d) {
+                        if (d.Year !== default_year) {
+                            d3.select(this)
+                                .attr("fill", "lightblue");
+                        }
+                        d3.select("#tooltip")
+                            .style("display", "none");
+                    })
+                    .on("click", function(event, d) {
+                        default_year = d.Year;
+                        bars.attr("fill", d => d.Year === default_year ? "darkgreen" : "lightblue");
+                        update_states(default_year);
+                    });
+            })();
+
+/////////// MAP ///////////
+            const map = d3.select("#map")
+                .append("svg")
+                .attr("width", container_w)
+                .attr("height", map_h);
+
+            const map_grp = map.append("g")
+                .attr("transform", `translate(${map_left_mg}, 0)`);
+
+            const projection = d3.geoAlbersUsa()
+                .scale(1000)
+                .translate([(container_w-map_left_mg)/2, map_h/2]);
+
+            const path = d3.geoPath().projection(projection);
+
+            const colorScale = d3.scaleSequential(d3.interpolateGreens)
+                .domain([0, 0.3]);
+
+            // Map title
+            const map_title = map_grp.append("text")
+                .attr("x", (container_w-map_left_mg)/2)
+                .attr("y", 30)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "18px")
+                .text(`SNAP Participation by State in ${default_year}`);
+
+            // Legend gradient
+            const legend_w = 300;
+            const legend_h = 15;
+            const legend_y = map_h - 60;
+
+            const legend = map_grp.append("g")
+                .attr("id", "legend")
+                .attr("transform", `translate(50, ${legend_y})`);
+
+            map_grp.append("text")
+                .attr("x", 50 + legend_w/2)
+                .attr("y", legend_y - 10)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "14px")
+                .text("SNAP Participation");
+
+            const defs = map_grp.append("defs");
+            const gradient = defs.append("linearGradient").attr("id","legend-gradient");
+
+            gradient.selectAll("stop")
+                .data(d3.range(0, 0.301, 0.01))
+                .enter()
+                .append("stop")
+                .attr("offset", d => d/0.3)
+                .attr("stop-color", d => colorScale(d));
+
+            legend.append("rect")
+                .attr("width", legend_w)
+                .attr("height", legend_h)
+                .style("fill", "url(#legend-gradient)");
+
+            const legend_scale = d3.scaleLinear()
+                .domain([0, 0.3])
+                .range([0, legend_w]);
+
+            const legend_axis = d3.axisBottom(legend_scale)
+                .tickValues([0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3])
+                .tickFormat(d => `${(d*100).toFixed(0)}%`);
+
+            legend.append("g")
+                .attr("transform", `translate(0, ${legend_h})`)
+                .call(legend_axis);
+
+            // Load state data & map
+            // see citation on await / async loading
+            let state_data;
+
+            (async function() {
+                const geojson = await d3.json("../data/clean_data/state.geojson");
+
+                const state_data = geojson;
+                const grouped = d3.group(geojson.features, d => d.properties.STATEFP);
+                const state_geoms = new Map();
+                
+                geojson.features.forEach(f => {
+                    if (!state_geoms.has(f.properties.STATEFP))
+                        state_geoms.set(f.properties.STATEFP, f.geometry);
+                });
+
+                function getyear_data(year) {
+                    const output = [];
+                    grouped.forEach((records, statefp) => {
+                        const match = records.find(r => r.properties.Year == year);
+                        if (match) {
+                            output.push({
+                                statefp,
+                                geometry: state_geoms.get(statefp),
+                                props: match.properties
+                            });
+                        }
+                    });
+                    return output;
+                }
+
+                // Update title year based on selection
+                window.update_states = function(year) {
+                    map_title.text(`SNAP Participation by State in ${year}`);
+                    const year_data = getyear_data(year);
+                    const states = map_grp.selectAll("path.state")
+                        .data(year_data, d => d.statefp);
+
+                    states.enter()
+                        .append("path")
+                        .attr("class", "state")
+                        .attr("d", d => path({ type: "Feature", geometry: d.geometry }))
+                        .attr("stroke", "#ffffff")
+                        .attr("stroke-width", 1)
+                        .merge(states)
+                        .transition().duration(500)
+                        .attr("fill", d => colorScale(d.props["Pct Participation"]));
+
+                    // Tooltip functionality
+                    states.on("mouseover", function(event, d) {
+                        d3.select(this)
+                            .attr("stroke", "black")
+                            .attr("stroke-width", 0.5);
+                        d3.select("#tooltip")
+                            .style("display", "block")
+                            .html(`<strong>${d.props.Location}</strong><br>
+                                Population: ${(d.props.Population / 1000000).toFixed(2)}M<br>
+                                Participation: ${(d.props["Pct Participation"] * 100).toFixed(2)}%<br>
+                                Total Benefits: $${(d["SNAP All Total Actual PA & Non-PA Issuance"])}`) // FIX: data type issue?
+                            .style("left", event.pageX + 5 + "px")
+                            .style("top", event.pageY - 5 + "px");
+                    }).on("mouseout", function() {
+                        d3.select(this)
+                            .attr("stroke", "#ffffff")
+                            .attr("stroke-width", 0.5);
+                        d3.select("#tooltip").style("display", "none");
+                    });
+                }
+
+                // load map with default
+                update_states(default_year);
+
+            })();
+
+/////// WIP ///////
+/////// EVENT BOX ///////
+            const event = d3.select("#events")
+                .append("svg")
+                .attr("width", event_w)
+                .attr("height", event_h)
+                .style("position", "relative")
+                .style("left", null)
+                .style("top", null)
+                .style("background", "lightgray");
+            
+            // event timeline, hardcoded for now
+            const events = [
+                "1988-2004 - Development of Electronic Benefit Transfer (EBT)",
+                "1990-1991 - The Gulf War Recession",
+                "1992 - Food Stamp Nutrition Education Program State Plans Approval",
+                "1993 - Mickey Leland Childhood Hunger Relief Act",
+                "1994 - Participation Milestone",
+                "1999-2001 - PRWORA and Other Major Legislative Actions",
+                "2001 - The Dot-Com Crash",
+                "2002 - Farm Security and Rural Investment Act",
+                "2007-2009 - The Great Recession",
+                "2008 - Participation Milestone",
+                "2008 - Food, Conservation, and Energy Act",
+                "2009 - American Recovery & Reinvestment Act",
+                "2010 - Healthy, Hunger-Free Kids Act",
+                "2013 - Participation Milestone",
+                "2014 - Agricultural Act",
+                "2020 - The COVID-19 Recession"
+            ];
+
+            event.append("text")
+                .attr("x", 20)
+                .attr("y", 30)
+                .attr("font-size", "18px")
+                .attr("font-weight", "bold")
+                .text("(WIP) Econ/Policy Context");
+
+            event.selectAll("text.event")
+                .data(events)
+                .enter()
+                .append("text")
+                .attr("x", 20)
+                .attr("y", (d, i) => 60 + i * 24)
+                .attr("font-size", "13px")
+                .text(d => "- " + d);
+
+        </script>
+    </body>
+</html>

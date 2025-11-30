@@ -1,0 +1,30 @@
+body {
+    font-family: sans-serif;
+}
+
+#container {
+    display: flex;
+    align-items: flex-start;
+}
+
+#map svg {
+    flex: 1;
+}
+
+.tooltip { 
+    position: absolute; 
+    text-align: left; 
+    padding: 8px; 
+    background: ivory; 
+    border: 1px solid #ccc; 
+    pointer-events: none; 
+    display: none;
+}
+
+rect.selected {
+    fill: darkgreen;
+}
+
+.event-text {
+    font-size: 12px;
+}
