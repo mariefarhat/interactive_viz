@@ -33,7 +33,7 @@
             const map_left_mg = 20;
 
             // default selection for first load
-            let default_year = 1989;
+            let default_year = 2006;
 
 /////////// BAR CHART ///////////
             const bar = d3.select("#bar")
@@ -101,7 +101,7 @@
                             .html(`<strong>${d.Year}</strong><br>
                                 Population: ${(d.Population / 1000000).toFixed(2)}M<br>
                                 Participation: ${(d["Pct Participation"] * 100).toFixed(2)}%<br>
-                                Total Benefits: $${(d["Total Benefits (MUSD)"] / 1000).toFixed(2)}B`) // Adjust for inflation (later)
+                                Total Benefits: $${(d["Total Benefits (MUSD)"] / 1000).toFixed(2)}B`)
                             .style("left", event.pageX + 5 + "px")
                             .style("top", event.pageY - 28 + "px");
                     })
@@ -248,7 +248,7 @@
                             .html(`<strong>${d.props.Location}</strong><br>
                                 Population: ${(d.props.Population / 1000000).toFixed(2)}M<br>
                                 Participation: ${(d.props["Pct Participation"] * 100).toFixed(2)}%<br>
-                                Total Benefits: $${(d["SNAP All Total Actual PA & Non-PA Issuance"])}`) // FIX: data type issue?
+                                Total Benefits: $${(d.props["Total SNAP Issuance"] / 1000000).toFixed(2)}M`)
                             .style("left", event.pageX + 5 + "px")
                             .style("top", event.pageY - 5 + "px");
                     }).on("mouseout", function() {

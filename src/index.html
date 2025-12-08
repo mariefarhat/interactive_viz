@@ -1,0 +1,90 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SNAP Interactive Viz</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="title">
+        <h1>SNAP Participation, Benefits, and Policies (2006-2024)</h1>
+    </div>
+
+    <div class="header">
+        <div class="instructions" id="instructions">
+            <h4>How to navigate this page:</h4>
+            <ol>
+                <li>Select an option from the dropdown menu</li>
+                <li>Hover over a bar or a state to see more data</li>
+                <li>Select a bar to view the state data for that year</li>
+                <li>Select an event to read more information</li>
+            </ol>
+            <br>
+            <a href="#layout"><b>Click to explore SNAP ↓</b></a>
+        </div>
+        
+        <div class="summary" id="summary">
+            <h4>What is SNAP?</h4>
+            Established in 1964 by President Lyndon B. Johnson, the Supplemental Nutrition Assistance Program (SNAP),
+            also known as food stamps, is the United States’ largest anti-hunger program, helping an average of
+            41.7 million—or 1 in 8—Americans per month.  
+            SNAP provides food benefits to low-income families to supplement their grocery budget so they can
+            afford the nutritious food essential to health and well-being.
+            <br>
+            The One Big Beautiful Bill Act of 2025 changes certain eligibility factors for SNAP.
+            This interactive visualization explores how SNAP participation and benefits have evolved in recent years,
+            to highlight the importance of this program for millions of Americans all across the country.
+            <br><br>
+            <i>All dollar values have been adjusted by the CPI-U to be represented in 2025 dollars.</i>
+        </div>
+    </div>
+
+    <div id="layout">
+
+        <div class="bar-menu">
+            <div id="menu">
+                <select id="data-dropdown">
+                    <option value="participation">SNAP Participation</option>
+                    <option value="benefits">SNAP Benefits</option>
+                </select>
+            </div>
+            <div id="bar"></div>
+        </div>  
+    
+        <div class="map-row">
+            <div id="map"></div>
+            <div id="events"></div>
+        </div>
+        <a href="#layout"><b>↑ Back to top</b></a>
+        <div id="event-detail"></div>
+    
+    </div>    
+
+    <div class="tooltip" id="tooltip"></div>
+    <a href="#layout"><b>↑ Back to top</b></a>
+    <div class="footer" id="footer">
+        <h4>Sources:</h4>
+        <ul>
+            <li><a href="https://publichealth.jhu.edu/2025/what-is-snap-and-why-does-it-matter#:~:text=Established%20in%201964%20by%20President,in%208%E2%80%94Americans%20per%20month." target="_blank">What is SNAP? - Johns Hopkins University</a></li>
+            <li><a href="https://www.fns.usda.gov/snap/supplemental-nutrition-assistance-program" target="_blank">SNAP - USDA Food and Nutrition Service</a></li>
+            <li><a href="https://www.investopedia.com/articles/economics/08/past-recessions.asp" target="_blank">US Recessions Throughout History - Investopedia</a></li>
+            <li><a href="https://www.minneapolisfed.org/about-us/monetary-policy/inflation-calculator/consumer-price-index-1913-" target="_blank">Consumer Price Index - Minneapolis FED</a></li>
+            <li><a href="https://fred.stlouisfed.org/series/POPTOTUSA647NWDB" target="_blank">Population, Total for United States - St Louis FRED</a></li>
+            <li><a href="https://fred.stlouisfed.org/release?rid=118" target="_blank">Annual Estimates of the Population for the US and States - St Louis FRED</a></li>
+            <li><a href="https://www.fns.usda.gov/pd/supplemental-nutrition-assistance-program-snap" target="_blank">National and State Level SNAP Data - USDA Food and Nutrition Service</a></li>
+            <li><a href="https://statehealthcompare.shadac.org/" target="_blank">Unemployment & Gini Coefficients - State Health Compare</a></li>
+            <li><a href="https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html" target="_blank">Cartographic Boundary Files - United States Census Bureau</a></li>
+        </ul>
+    </div>
+
+    <h4>Marie Farhat | Data Visualization for Policy Analysis (CAPP 30239) at the University of Chicago, Fall 2025</h4>
+
+    <script src="map.js"></script>
+    <script src="bar.js"></script>
+    <script src="events.js"></script>
+</body>
+</html>
