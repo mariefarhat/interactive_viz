@@ -17,7 +17,7 @@ events.append("text")
 
 // Load event data
 (async function () {
-    const raw = await d3.csv("../data/clean_data/events.csv", d3.autoType);
+    const raw = await d3.csv("clean_data/events.csv", d3.autoType);
 
     // Group duplicate years
     const grouped = d3.group(raw, d => d.Headline);

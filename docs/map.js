@@ -31,7 +31,7 @@ let selectedDataType = "participation";
     const map_grp = map.append("g");
 
     // Load geojson
-    const geojson = await d3.json("../data/clean_data/state.geojson");
+    const geojson = await d3.json("clean_data/state.geojson");
     const grouped = d3.group(geojson.features, d => d.properties.STATEFP);
     const state_geoms = new Map();
     geojson.features.forEach(f => {

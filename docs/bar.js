@@ -33,7 +33,7 @@
         .text("SNAP Participation");
 
     // Load national data
-    const national_data = await d3.csv("../data/clean_data/national.csv", d3.autoType);
+    const national_data = await d3.csv("clean_data/national.csv", d3.autoType);
 
     const x = d3.scaleBand()
         .domain(national_data.map(d => d.Year))
