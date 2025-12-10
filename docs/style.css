@@ -47,7 +47,7 @@ body {
 }
 
 #bar {
-    flex: auto;
+    width: 100%;
 }
 
 .map-row {
