@@ -1,12 +1,11 @@
 // map.js
 
 let default_year = 2006;
-let selectedDataType = "participation";
+let selectedDropdown = "participation";
 
 (async function() {
     const mapWidth = 1000;
     const mapHeight = 600;
-    //const marginLeft = 100;
 
     const map = d3.select("#map")
         .append("svg")
@@ -15,7 +14,6 @@ let selectedDataType = "participation";
 
     const projection = d3.geoAlbersUsa()
         .scale(900)
-        //.translate([mapWidth / 2 - marginLeft, mapHeight / 2]);
 
     const path = d3.geoPath().projection(projection);
 
@@ -106,16 +104,14 @@ let selectedDataType = "participation";
         .attr("stroke-width", 1);
 
     // Function to update map colors & legend
-    window.updateMap = function(year, dataType) {
-        selectedDataType = dataType;
-
-        //mapTitle.text(`${dataType === "participation" ? "SNAP Participation" : "SNAP Benefits Distributed"} by State in ${year}`);
+    window.updateMap = function(year, dropdown) {
+        selectedDropdown = dropdown;
 
         const yearData = getYearData(year);
-        const colorScale = dataType === "participation" ? participationColor : benefitsColor;
+        const colorScale = dropdown === "participation" ? participationColor : benefitsColor;
 
         // Update legend
-        if (dataType === "participation") {
+        if (dropdown === "participation") {
             legendTitle.text(`State SNAP Participation in ${year}`);
             gradient.selectAll("stop")
                 .data(d3.range(0.04, 0.281, 0.01))
@@ -145,7 +141,7 @@ let selectedDataType = "participation";
         statePaths.data(yearData, d => d.statefp)
             .transition().duration(500)
             .attr("fill", d => {
-                if (dataType === "participation") return colorScale(d.props["Pct Participation"]);
+                if (dropdown === "participation") return colorScale(d.props["Pct Participation"]);
                 const val = d.props["Total SNAP Issuance"];
                 return val > 0 ? colorScale(val / 1000000) : noDataColor;
             });
@@ -171,5 +167,5 @@ let selectedDataType = "participation";
     };
 
     // Default view
-    window.updateMap(default_year, selectedDataType);
+    window.updateMap(default_year, selectedDropdown);
 })();

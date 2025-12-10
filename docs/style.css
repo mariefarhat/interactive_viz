@@ -64,11 +64,50 @@ body {
     justify-content: right;
 }
 
-
 #event-detail {
     padding: 1%;
     min-height: 100px;
     flex: auto;
+}
+
+.events-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.event-card {
+    cursor: pointer;
+}
+
+.event-card-bg {
+    fill: #cccccc;
+}
+
+.event-card-text {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.event-card.active .event-card-bg {
+    fill: lightblue;
+}
+
+.event-detail-card {
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #cccccc;
+    background: #f9f9f9;
+}
+
+.event-detail-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.event-detail-summary {
+    margin-top: 8px;
+    font-size: 14px;
 }
 
 .footer {

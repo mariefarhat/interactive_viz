@@ -6,7 +6,7 @@
     const bar_w = window.innerWidth - margin.left - margin.right;
     const bar_inner_h = bar_h - margin.top - margin.bottom;
     let default_year = 2006;
-    let selectedDataType = "participation";
+    let selectedDropdown = "participation";
 
     const bar = d3.select("#bar")
         .append("svg")
@@ -82,30 +82,36 @@
                 .style("top", event.pageY - 28 + "px");
         })
         .on("mouseout", function(event, d) {
-            d3.select(this).attr("fill", d.Year === default_year ? (selectedDataType === "participation" ? "#CC5500" : "green") : "lightblue");
+            d3.select(this).attr(
+                "fill", d.Year === default_year ? (
+                    selectedDropdown === "participation" ? "#CC5500" : "green"
+                ) : "lightblue");
             d3.select("#tooltip").style("display", "none");
         })
         .on("click", function(event, d) {
             default_year = d.Year;
-            bars.attr("fill", d => d.Year === default_year ? (selectedDataType === "participation" ? "#CC5500" : "green") : "lightblue");
-            updateMap(default_year, selectedDataType);
+            bars.attr(
+                "fill", d => d.Year === default_year ? (
+                    selectedDropdown === "participation" ? "#CC5500" : "green"
+                ) : "lightblue");
+            updateMap(default_year, selectedDropdown);
             updateEvent(default_year);
         });
 
     // Dropdown listener
     const dropdown = document.getElementById("data-dropdown");
     dropdown.addEventListener("change", function() {
-        selectedDataType = this.value;
-        updateBarChart(selectedDataType);
-        updateMap(default_year, selectedDataType);
+        selectedDropdown = this.value;
+        updateBarChart(selectedDropdown);
+        updateMap(default_year, selectedDropdown);
         updateEvent(default_year);
     });
 
     // Update bar chart function
-    function updateBarChart(dataType) {
+    function updateBarChart(dropdown) {
         let yLabelText, yDomain, tickFormat, tickValues;
 
-        if (dataType === "participation") {
+        if (dropdown === "participation") {
             barTitle.text("Percent of U.S. Residents Participating in SNAP");
             yLabelText = "SNAP Participation";
             yDomain = [0, d3.max(national_data, d => d["Pct Participation"])];
@@ -125,13 +131,13 @@
         yAxis.transition().duration(500).call(d3.axisLeft(y).tickFormat(tickFormat).tickValues(tickValues));
 
         bars.transition().duration(500)
-            .attr("y", d => y(dataType === "participation" ? d["Pct Participation"] : d["Total Benefits (MUSD)"]))
-            .attr("height", d => bar_inner_h - y(dataType === "participation" ? d["Pct Participation"] : d["Total Benefits (MUSD)"]))
-            .attr("fill", d => d.Year === default_year ? (dataType === "participation" ? "#CC5500" : "green") : "lightblue");
+            .attr("y", d => y(dropdown === "participation" ? d["Pct Participation"] : d["Total Benefits (MUSD)"]))
+            .attr("height", d => bar_inner_h - y(dropdown === "participation" ? d["Pct Participation"] : d["Total Benefits (MUSD)"]))
+            .attr("fill", d => d.Year === default_year ? (dropdown === "participation" ? "#CC5500" : "green") : "lightblue");
 
-        // Update tooltip for new dataType
+        // Update tooltip for new dropdown option
         bars.on("mouseover", function(event, d) {
-            d3.select(this).attr("fill", d.Year === default_year ? (dataType === "participation" ? "#CC5500" : "green") : "darkgray");
+            d3.select(this).attr("fill", d.Year === default_year ? (dropdown === "participation" ? "#CC5500" : "green") : "darkgray");
             d3.select("#tooltip")
                 .style("display", "block")
                 .html(`<strong>${d.Year}</strong><br>
