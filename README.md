@@ -1,4 +1,5 @@
-# [SNAP Participation, Benefits, and Policies (2006-2024)](https://mariefarhat.github.io/interactive_viz/)
+# SNAP Participation, Benefits, and Policies (2006-2024)
+[Click here to interact with the report.](https://mariefarhat.github.io/interactive_viz/)
 
 Marie Farhat
 
